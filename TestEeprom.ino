@@ -1,6 +1,7 @@
 
 #include <Adafruit_NeoPixel.h>
 #include "Button.hpp"
+#include <EEPROM.h>
 
 enum LedDisplayMode
 {
@@ -15,14 +16,20 @@ enum LedDisplayMode
 Button<2> button;
 int constexpr pinLedsStrip = 5;
 unsigned constexpr ledsCount = 10;
-unsigned constexpr ledsBrightness = 100; // [0, 255]
+unsigned constexpr ledsBrightness = 20; // [0, 255]
+
+unsigned constexpr eepromAddress = 0;
 
 static LedDisplayMode mode = ModeFull;
 static Adafruit_NeoPixel ledsStrip(ledsCount, pinLedsStrip, NEO_GRBW + NEO_KHZ800);
 
 // the setup function runs once when you press reset or power the board
 void setup()
-{  
+{
+  // read back leds stripe mode
+  EEPROM.get(eepromAddress, mode);
+  mode = mode % _ModesCount;
+  
   // initialize leds
   ledsStrip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   ledsStrip.show();            // Turn OFF all pixels ASAP
@@ -37,6 +44,7 @@ void loop()
   if (buttonReleased)
   {
     mode = (mode + 1) % _ModesCount;
+    EEPROM.put(eepromAddress, mode);
   }
   
   switch (mode)
