@@ -13,8 +13,8 @@ enum LedDisplayMode
   _ModesCount // number of modes - not a mode itself
 };
 
-Button<2> button;
-int constexpr pinLedsStrip = 5;
+Button<4> button;
+int constexpr pinLedsStrip = 3;
 unsigned constexpr ledsCount = 10;
 unsigned constexpr ledsBrightness = 20; // [0, 255]
 
