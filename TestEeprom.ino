@@ -3,6 +3,20 @@
 #include "Button.hpp"
 #include <EEPROM.h>
 
+namespace Colors
+{
+
+constexpr uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w)
+{
+    return ((uint32_t)w << 24) | ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
+}
+
+uint32_t constexpr Red = Color(255, 0, 0, 0);
+uint32_t constexpr Green = Color(0, 255, 0, 0);
+uint32_t constexpr Blue = Color(0, 0, 255, 0);
+uint32_t constexpr White = Color(0, 0, 0, 255);
+}
+
 enum LedDisplayMode
 {
     ModeRed,
@@ -19,9 +33,10 @@ unsigned constexpr ledsCount = 10;
 unsigned constexpr ledsBrightness = 20; // [0, 255]
 
 unsigned constexpr eepromAddressMode = 0;
-//unsigned constexpr eepromAddressBrightness = sizeof(LedDisplayMode);
+//unsigned constexpr eepromAddressBrightness = eepromAddressMode + sizeof(LedDisplayMode);
 
 static LedDisplayMode mode = ModeFull;
+static bool ledsNeedUpdate = true;
 static Adafruit_NeoPixel ledsStrip(ledsCount, pinLedsStrip, NEO_GRBW + NEO_KHZ800);
 
 // the setup function runs once when you press reset or power the board
@@ -46,40 +61,56 @@ void loop()
     {
         mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
         EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
+        ledsNeedUpdate = true;
     }
 
-    switch (mode)
+    if (ledsNeedUpdate)
     {
-    case ModeFull:
-    {
-        ledsStripFillColor(ledsStrip, Adafruit_NeoPixel::Color(255, 255, 255, 255));
-        break;
-    }
-    case ModeRed:
-    {
-        ledsStripFillColor(ledsStrip, Adafruit_NeoPixel::Color(255, 0, 0, 0));
-        break;
-    }
-    case ModeGreen:
-    {
-        ledsStripFillColor(ledsStrip, Adafruit_NeoPixel::Color(0, 255, 0, 0));
-        break;
-    }
-    case ModeBlue:
-    {
-        ledsStripFillColor(ledsStrip, Adafruit_NeoPixel::Color(0, 0, 255, 0));
-        break;
-    }
-    case ModeWhite:
-    {
-        ledsStripFillColor(ledsStrip, Adafruit_NeoPixel::Color(0, 0, 0, 255));
-        break;
-    }
-    default:
-    {
-        ledsStripShowNumber(ledsStrip, Adafruit_NeoPixel::Color(1, 1, 1, 127), mode);
-        break;
-    }
+        switch (mode)
+        {
+        case ModeRedWhite:
+        {
+            ledsStripFillColor(ledsStrip, Adafruit_NeoPixel::Color(255, 255, 255, 255));
+            ledsNeedUpdate = false;
+            break;
+        }
+        case ModeFull:
+        {
+            ledsStripFillColor(ledsStrip, Colors::Red + Colors::Green + Colors::Blue + Colors::White);
+            ledsNeedUpdate = false;
+            break;
+        }
+        case ModeRed:
+        {
+            ledsStripFillColor(ledsStrip, Colors::Red);
+            ledsNeedUpdate = false;
+            break;
+        }
+        case ModeGreen:
+        {
+            ledsStripFillColor(ledsStrip, Colors::Green);
+            ledsNeedUpdate = false;
+            break;
+        }
+        case ModeBlue:
+        {
+            ledsStripFillColor(ledsStrip, Colors::Blue);
+            ledsNeedUpdate = false;
+            break;
+        }
+        case ModeWhite:
+        {
+            ledsStripFillColor(ledsStrip, Colors::White);
+            ledsNeedUpdate = false;
+            break;
+        }
+        default:
+        {
+            ledsStripShowNumber(ledsStrip, Colors::Red + Colors::Green, mode);
+            ledsNeedUpdate = false;
+            break;
+        }
+        }
     }
 }
 
@@ -101,3 +132,4 @@ void ledsStripShowNumber(Adafruit_NeoPixel & strip, uint32_t const & color, uint
     }
     strip.show(); //  Update strip
 }
+
