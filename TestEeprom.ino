@@ -4,10 +4,10 @@
 
 #include "Button.hpp"
 #include "Colors.hpp"
-#include "Freddy.hpp"
+#include "Freddie.hpp"
 
 using namespace Colors;
-using namespace Freddy;
+using namespace Freddie;
 
 
 enum LedDisplayMode
@@ -66,7 +66,7 @@ void loop()
         {
         case ModeRedWhite:
         {
-            lightUpFreddy(ledsStrip, Colors::Red, Colors::White, Colors::White);
+            lightUpFreddie(ledsStrip, /*rays*/ Colors::Red, /*Freddies*/ Colors::White, /*words*/ Colors::White);
             ledsNeedUpdate = false;
             break;
         }
