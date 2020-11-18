@@ -1,24 +1,18 @@
 
 #include <Adafruit_NeoPixel.h>
-#include "Button.hpp"
 #include <EEPROM.h>
 
-namespace Colors
-{
+#include "Button.hpp"
+#include "Colors.hpp"
+#include "Freddy.hpp"
 
-constexpr uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w)
-{
-    return ((uint32_t)w << 24) | ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
-}
+using namespace Colors;
+using namespace Freddy;
 
-uint32_t constexpr Red = Color(255, 0, 0, 0);
-uint32_t constexpr Green = Color(0, 255, 0, 0);
-uint32_t constexpr Blue = Color(0, 0, 255, 0);
-uint32_t constexpr White = Color(0, 0, 0, 255);
-}
 
 enum LedDisplayMode
 {
+    ModeRedWhite,
     ModeRed,
     ModeGreen,
     ModeBlue,
@@ -39,6 +33,7 @@ static LedDisplayMode mode = ModeFull;
 static bool ledsNeedUpdate = true;
 static Adafruit_NeoPixel ledsStrip(ledsCount, pinLedsStrip, NEO_GRBW + NEO_KHZ800);
 
+
 // the setup function runs once when you press reset or power the board
 void setup()
 {
@@ -51,6 +46,7 @@ void setup()
     ledsStrip.show();            // Turn OFF all pixels ASAP
     ledsStrip.setBrightness(ledsBrightness);
 }
+
 
 // the loop function runs over and over again forever
 void loop()
@@ -70,7 +66,7 @@ void loop()
         {
         case ModeRedWhite:
         {
-            ledsStripFillColor(ledsStrip, Adafruit_NeoPixel::Color(255, 255, 255, 255));
+            lightUpFreddy(ledsStrip, Colors::Red, Colors::White, Colors::White);
             ledsNeedUpdate = false;
             break;
         }
@@ -106,15 +102,18 @@ void loop()
         }
         default:
         {
-            ledsStripShowNumber(ledsStrip, Colors::Red + Colors::Green, mode);
-            ledsNeedUpdate = false;
+            // change to default
+            mode = ModeRedWhite;
+//            ledsStripShowNumber(ledsStrip, Colors::Red + Colors::Green, mode);
+//            ledsNeedUpdate = false;
             break;
         }
         }
     }
 }
 
-void ledsStripFillColor(Adafruit_NeoPixel & strip, uint32_t const & color)
+
+void ledsStripFillColor(Adafruit_NeoPixel & strip, Color_t const & color)
 {
     for(uint16_t i = 0; i < strip.numPixels(); ++i)
     {
@@ -123,7 +122,8 @@ void ledsStripFillColor(Adafruit_NeoPixel & strip, uint32_t const & color)
     strip.show(); //  Update strip
 }
 
-void ledsStripShowNumber(Adafruit_NeoPixel & strip, uint32_t const & color, uint16_t number)
+
+void ledsStripShowNumber(Adafruit_NeoPixel & strip, Color_t const & color, uint16_t number)
 {
     for(uint16_t i = 0; i < strip.numPixels(); ++i)
     {

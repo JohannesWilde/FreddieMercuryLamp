@@ -1,3 +1,6 @@
+#ifndef BUTTON_HPP
+#define BUTTON_HPP
+
 #include <Arduino.h>
 
 template <int pinNumber>
@@ -55,3 +58,5 @@ private:
     return (LOW == digitalRead(pinNumber));
   }  
 };
+
+#endif // BUTTON_HPP
