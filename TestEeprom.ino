@@ -1,7 +1,8 @@
 
 #include <Adafruit_NeoPixel.h>
 #include "Button.hpp"
-#include <EEPROM.h>
+
+#include <avr/eeprom.h>
 
 enum LedDisplayMode
 {
@@ -28,8 +29,7 @@ static Adafruit_NeoPixel ledsStrip(ledsCount, pinLedsStrip, NEO_GRBW + NEO_KHZ80
 void setup()
 {
     // read back leds stripe mode
-    EEPROM.get<LedDisplayMode>(eepromAddressMode, mode);
-    mode = static_cast<LedDisplayMode>(mode % _ModesCount);
+    mode = static_cast<LedDisplayMode>(eeprom_read_byte((uint8_t *)(eepromAddressMode)) % static_cast<uint8_t>(_ModesCount));
 
     // initialize leds
     ledsStrip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
@@ -45,7 +45,7 @@ void loop()
     if (buttonReleased)
     {
         mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
-        EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
+        eeprom_update_byte((uint8_t *)(eepromAddressMode), static_cast<uint8_t>(mode));
     }
 
     switch (mode)
