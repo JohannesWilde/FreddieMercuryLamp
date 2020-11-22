@@ -3,24 +3,32 @@
 
 #include <Arduino.h>
 
+struct ButtonState
+{
+    ButtonState(bool const isDown, bool const pressed, bool const released)
+        : isDown(isDown)
+        , pressed(pressed)
+        , released(released)
+    {
+    }
+
+    ButtonState(ButtonState const & other)
+        : isDown(other.isDown)
+        , pressed(other.pressed)
+        , released(other.released)
+    {
+    }
+
+    bool isDown : 1;
+    bool pressed : 1;
+    bool released : 1;
+}  __attribute__((packed));
+
+
 template <int pinNumber>
 class Button
 {
 public:
-
-    struct ButtonState
-    {
-        ButtonState(bool const isDown, bool const pressed, bool const released)
-            : isDown(isDown)
-            , pressed(pressed)
-            , released(released)
-        {
-        }
-
-        bool isDown : 1;
-        bool pressed : 1;
-        bool released : 1;
-    };
 
     Button()
     {
@@ -77,6 +85,13 @@ public:
                                       released_(isDownNow, wasDownPreviously_));
         wasDownPreviously_ = isDownNow;
         return buttonState;
+    }
+
+protected:
+
+    bool getWasDownPreviously_()
+    {
+        return wasDownPreviously_;
     }
 
 private:
