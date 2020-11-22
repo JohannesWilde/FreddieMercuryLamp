@@ -10,26 +10,39 @@ struct ButtonTimedState : public ButtonState
     ButtonTimedState(bool const isDown,
                      bool const pressed,
                      bool const released,
-                     bool const longDuration)
+                     bool const longDuration,
+                     bool const longDurationPressed,
+                     bool const longDurationReleased)
         : ButtonState(isDown, pressed, released)
         , longDuration(longDuration)
+        , longDurationPressed(longDurationPressed)
+        , longDurationReleased(longDurationReleased)
     {
     }
 
     ButtonTimedState(ButtonState const & buttonState,
-                     bool const longDuration)
+                     bool const longDuration,
+                     bool const longDurationPressed,
+                     bool const longDurationReleased)
         : ButtonState(buttonState)
         , longDuration(longDuration)
+        , longDurationPressed(longDurationPressed)
+        , longDurationReleased(longDurationReleased)
     {
     }
 
     ButtonTimedState(ButtonTimedState const & other)
         : ButtonState(other.isDown, other.pressed, other.released)
         , longDuration(other.longDuration)
+        , longDurationPressed(other.longDurationPressed)
+        , longDurationReleased(other.longDurationReleased)
     {
     }
 
     bool longDuration : 1;
+    bool longDurationPressed : 1;
+    bool longDurationReleased : 1;
+
 } __attribute__((packed));
 
 
@@ -92,10 +105,14 @@ public:
     {
         bool const wasDownPreviouslyBackup = Button<pinNumber>::getWasDownPreviously_();
         ButtonState const buttonState = Button<pinNumber>::getState();
+        //
+        bool const wasLongDurationPreviously = isLongDuration(currentTimeMs, lastTimeToggledMs_);
         // Button<pinNumber>::wasDownPreviously_ now holds the isDownNow value
         potentiallyUpdateLastTimeToggled_(wasDownPreviouslyBackup, Button<pinNumber>::getWasDownPreviously_(), currentTimeMs);
         ButtonTimedState const buttonTimedState(buttonState,
-                                                isLongDuration(currentTimeMs, lastTimeToggledMs_));
+                                                isLongDuration(currentTimeMs, lastTimeToggledMs_),
+                                                wasLongDurationPreviously && buttonState.pressed,
+                                                wasLongDurationPreviously && buttonState.released);
         return buttonTimedState;
     }
 
