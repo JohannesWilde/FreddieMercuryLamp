@@ -18,6 +18,7 @@ Color_t constexpr Black = Color(0, 0, 0, 0);
 Color_t constexpr Red = Color(255, 0, 0, 0);
 Color_t constexpr Green = Color(0, 255, 0, 0);
 Color_t constexpr Blue = Color(0, 0, 255, 0);
+Color_t constexpr Yellow = Color(255, 246, 0, 0);
 Color_t constexpr White = Color(0, 0, 0, 255);
 }
 
