@@ -5,6 +5,7 @@
 #include "ButtonTimed.hpp"
 #include "Colors.hpp"
 #include "Freddie.hpp"
+#include "Range.hpp"
 
 using namespace Colors;
 using namespace Freddie;
@@ -32,11 +33,12 @@ static Time_t currentTime = millis();
 ButtonTimed<0> buttonMode(currentTime);
 ButtonTimed<4> buttonPower(currentTime);
 int constexpr pinLedsStrip = 3;
-unsigned constexpr ledsCount = 10;
-unsigned constexpr ledsBrightness = 20; // [0, 255]
+uint16_t constexpr ledsCount = 10;
+typedef Auxiliaries::Range<uint8_t , /*ledsBrightnessMin*/ 20, /*ledsBrightnessMax*/ 255> RangeBrightness;
+uint8_t ledsBrightness = 20; // [0, 255]
 
 unsigned constexpr eepromAddressMode = 0;
-//unsigned constexpr eepromAddressBrightness = eepromAddressMode + sizeof(LedDisplayMode);
+unsigned constexpr eepromAddressBrightness = eepromAddressMode + sizeof(LedDisplayMode);
 
 static PowerState powerState = PowerOn; // default to On
 static LedDisplayMode mode = ModeFull;
@@ -50,6 +52,9 @@ void setup()
     // read back leds stripe mode
     EEPROM.get<LedDisplayMode>(eepromAddressMode, mode);
     mode = static_cast<LedDisplayMode>(mode % _ModesCount);
+
+    EEPROM.get<uint8_t>(eepromAddressBrightness, ledsBrightness);
+    ledsBrightness = RangeBrightness::shiftIntoRange(ledsBrightness);
 
     // initialize leds
     ledsStrip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
@@ -91,8 +96,16 @@ void loop()
     {
         if (buttonModeState.longDuration && buttonModeState.isDown)
         {
-            lightUpFreddie(ledsStrip, Colors::Yellow);
-
+            static Time_t constexpr brightnessUpdateDurationMs = 20;
+            static Time_t lastTimeBrightnessChangedMs = currentTime - brightnessUpdateDurationMs;
+            if ((currentTime - lastTimeBrightnessChangedMs) >= brightnessUpdateDurationMs)
+            {
+                static Auxiliaries::ValueChanger<uint8_t, RangeBrightness> brightnessValueChanger;
+                lastTimeBrightnessChangedMs = currentTime;
+                ledsBrightness = brightnessValueChanger.change(ledsBrightness);
+                ledsStrip.setBrightness(ledsBrightness);
+                ledsStripShowNumber(ledsStrip, Colors::Yellow, ledsBrightness);
+            }
         }
         else if (buttonModeState.released && !buttonModeState.longDurationReleased)
         {
@@ -174,4 +187,3 @@ void ledsStripShowNumber(Adafruit_NeoPixel & strip, Color_t const & color, uint1
     }
     strip.show(); //  Update strip
 }
-
