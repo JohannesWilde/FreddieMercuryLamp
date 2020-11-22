@@ -14,6 +14,7 @@ constexpr Color_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w)
     return ((Color_t)w << 24) | ((Color_t)r << 16) | ((Color_t)g <<  8) | (Color_t)b;
 }
 
+Color_t constexpr Black = Color(0, 0, 0, 0);
 Color_t constexpr Red = Color(255, 0, 0, 0);
 Color_t constexpr Green = Color(0, 255, 0, 0);
 Color_t constexpr Blue = Color(0, 0, 255, 0);
