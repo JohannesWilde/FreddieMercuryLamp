@@ -9,6 +9,11 @@
 using namespace Colors;
 using namespace Freddie;
 
+enum PowerState
+{
+    PowerOn,
+    PowerOff
+};
 
 enum LedDisplayMode
 {
@@ -30,6 +35,7 @@ unsigned constexpr ledsBrightness = 20; // [0, 255]
 unsigned constexpr eepromAddressMode = 0;
 //unsigned constexpr eepromAddressBrightness = eepromAddressMode + sizeof(LedDisplayMode);
 
+static PowerState powerState = PowerOn; // default to On
 static LedDisplayMode mode = ModeFull;
 static bool ledsNeedUpdate = true;
 static Adafruit_NeoPixel ledsStrip(ledsCount, pinLedsStrip, NEO_GRBW + NEO_KHZ800);
@@ -52,69 +58,88 @@ void setup()
 // the loop function runs over and over again forever
 void loop()
 {
+    // update buttons
+    bool const buttonPowerReleased = buttonPower.released();
     bool const buttonReleased = buttonMode.released();
 
-    if (buttonReleased)
+    // check power button
+    if (buttonPowerReleased)
     {
-        mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
-        EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
-        ledsNeedUpdate = true;
+        switch (powerState)
+        {
+        case PowerOff:
+        {
+            powerState = PowerOn;
+            ledsNeedUpdate = true;
+            break;
+        }
+        case PowerOn:
+        {
+            powerState = PowerOff;
+            lightUpFreddie(ledsStrip, Colors::Black);
+            break;
+        }
+        }
     }
 
-    if (buttonPower.released())
+    if (PowerOn == powerState)
     {
-        mode = ModeGreen;
-        ledsNeedUpdate = true;
-    }
+        if (buttonReleased)
+        {
+            mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
+            EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
+            ledsNeedUpdate = true;
+        }
 
-    if (ledsNeedUpdate)
-    {
-        switch (mode)
+        if (ledsNeedUpdate)
         {
-        case ModeRedWhite:
-        {
-            lightUpFreddie(ledsStrip, /*rays*/ Colors::Red, /*Freddies*/ Colors::White, /*words*/ Colors::White);
-            ledsNeedUpdate = false;
-            break;
-        }
-        case ModeFull:
-        {
-            ledsStripFillColor(ledsStrip, Colors::Red + Colors::Green + Colors::Blue + Colors::White);
-            ledsNeedUpdate = false;
-            break;
-        }
-        case ModeRed:
-        {
-            ledsStripFillColor(ledsStrip, Colors::Red);
-            ledsNeedUpdate = false;
-            break;
-        }
-        case ModeGreen:
-        {
-            ledsStripFillColor(ledsStrip, Colors::Green);
-            ledsNeedUpdate = false;
-            break;
-        }
-        case ModeBlue:
-        {
-            ledsStripFillColor(ledsStrip, Colors::Blue);
-            ledsNeedUpdate = false;
-            break;
-        }
-        case ModeWhite:
-        {
-            ledsStripFillColor(ledsStrip, Colors::White);
-            ledsNeedUpdate = false;
-            break;
-        }
-        default:
-        {
-            // change to default
-            mode = ModeRedWhite;
-//            ledsStripShowNumber(ledsStrip, Colors::Red + Colors::Green, mode);
-//            ledsNeedUpdate = false;
-            break;
-        }
+            switch (mode)
+            {
+            case ModeRedWhite:
+            {
+                lightUpFreddie(ledsStrip, /*rays*/ Colors::Red, /*Freddies*/ Colors::White, /*words*/ Colors::White);
+                ledsNeedUpdate = false;
+                break;
+            }
+            case ModeFull:
+            {
+                ledsStripFillColor(ledsStrip, Colors::Red + Colors::Green + Colors::Blue + Colors::White);
+                ledsNeedUpdate = false;
+                break;
+            }
+            case ModeRed:
+            {
+                ledsStripFillColor(ledsStrip, Colors::Red);
+                ledsNeedUpdate = false;
+                break;
+            }
+            case ModeGreen:
+            {
+                ledsStripFillColor(ledsStrip, Colors::Green);
+                ledsNeedUpdate = false;
+                break;
+            }
+            case ModeBlue:
+            {
+                ledsStripFillColor(ledsStrip, Colors::Blue);
+                ledsNeedUpdate = false;
+                break;
+            }
+            case ModeWhite:
+            {
+                ledsStripFillColor(ledsStrip, Colors::White);
+                ledsNeedUpdate = false;
+                break;
+            }
+            default:
+            {
+                // change to default
+                mode = ModeRedWhite;
+    //            ledsStripShowNumber(ledsStrip, Colors::Red + Colors::Green, mode);
+    //            ledsNeedUpdate = false;
+                break;
+            }
+            }
         }
     }
 }
