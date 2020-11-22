@@ -89,7 +89,12 @@ void loop()
 
     if (PowerOn == powerState)
     {
-        if (buttonModeState.released)
+        if (buttonModeState.longDuration && buttonModeState.isDown)
+        {
+            lightUpFreddie(ledsStrip, Colors::Yellow);
+
+        }
+        else if (buttonModeState.released && !buttonModeState.longDurationReleased)
         {
             mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
             EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
