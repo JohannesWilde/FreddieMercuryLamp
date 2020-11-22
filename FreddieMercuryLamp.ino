@@ -103,8 +103,9 @@ void loop()
                 static Auxiliaries::ValueChanger<uint8_t, RangeBrightness> brightnessValueChanger;
                 lastTimeBrightnessChangedMs = currentTime;
                 ledsBrightness = brightnessValueChanger.change(ledsBrightness);
+                EEPROM.put<uint8_t>(eepromAddressBrightness, ledsBrightness);
                 ledsStrip.setBrightness(ledsBrightness);
-                ledsStripShowNumber(ledsStrip, Colors::Yellow, ledsBrightness);
+                ledsNeedUpdate = true;
             }
         }
         else if (buttonModeState.released && !buttonModeState.longDurationReleased)
