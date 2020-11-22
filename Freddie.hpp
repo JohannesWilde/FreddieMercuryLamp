@@ -77,6 +77,12 @@ void lightUpFreddie(Adafruit_NeoPixel & strip,
     lightUpFreddie(strip, rays, rays, rays, Freddies, Freddies, Freddies, Freddies, words, words, words);
 }
 
+void lightUpFreddie(Adafruit_NeoPixel & strip,
+                     Color_t const & everything)
+{
+    lightUpFreddie(strip, /*rays*/ everything, /*Freddies*/ everything, /*words*/ everything);
+}
+
 
 void lightUpFreddiesRays(Adafruit_NeoPixel & strip,
                           Color_t const & ray0, Color_t const & ray1, Color_t const & ray2)
