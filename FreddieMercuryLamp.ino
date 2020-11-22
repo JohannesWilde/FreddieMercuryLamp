@@ -2,7 +2,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <EEPROM.h>
 
-#include "Button.hpp"
+#include "ButtonTimed.hpp"
 #include "Colors.hpp"
 #include "Freddie.hpp"
 
@@ -26,8 +26,11 @@ enum LedDisplayMode
     _ModesCount // number of modes - not a mode itself
 };
 
-Button<0> buttonMode;
-Button<4> buttonPower;
+typedef unsigned long Time_t;
+
+static Time_t currentTime = millis();
+ButtonTimed<0> buttonMode(currentTime);
+ButtonTimed<4> buttonPower(currentTime);
 int constexpr pinLedsStrip = 3;
 unsigned constexpr ledsCount = 10;
 unsigned constexpr ledsBrightness = 20; // [0, 255]
@@ -58,12 +61,14 @@ void setup()
 // the loop function runs over and over again forever
 void loop()
 {
+    currentTime = millis();
+
     // update buttons
-    bool const buttonPowerReleased = buttonPower.released();
-    bool const buttonReleased = buttonMode.released();
+    ButtonTimedState const buttonPowerState = buttonPower.getState(currentTime);
+    ButtonTimedState const buttonModeState = buttonMode.getState(currentTime);
 
     // check power button
-    if (buttonPowerReleased)
+    if (buttonPowerState.released)
     {
         switch (powerState)
         {
@@ -84,7 +89,7 @@ void loop()
 
     if (PowerOn == powerState)
     {
-        if (buttonReleased)
+        if (buttonModeState.released)
         {
             mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
             EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
