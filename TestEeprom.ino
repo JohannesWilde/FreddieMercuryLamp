@@ -21,7 +21,8 @@ enum LedDisplayMode
     _ModesCount // number of modes - not a mode itself
 };
 
-Button<4> button;
+Button<0> buttonMode;
+Button<4> buttonPower;
 int constexpr pinLedsStrip = 3;
 unsigned constexpr ledsCount = 10;
 unsigned constexpr ledsBrightness = 20; // [0, 255]
@@ -51,12 +52,18 @@ void setup()
 // the loop function runs over and over again forever
 void loop()
 {
-    bool const buttonReleased = button.released();
+    bool const buttonReleased = buttonMode.released();
 
     if (buttonReleased)
     {
         mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
         EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
+        ledsNeedUpdate = true;
+    }
+
+    if (buttonPower.released())
+    {
+        mode = ModeGreen;
         ledsNeedUpdate = true;
     }
 
