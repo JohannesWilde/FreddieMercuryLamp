@@ -38,12 +38,12 @@ enum ValueChangerDirection
 };
 
 template <typename T, typename Range_>
-class ValueChangerLooping
+class ValueChangerDirected
 {
 public:
     typedef Range_ Range;
 
-    ValueChangerLooping(ValueChangerDirection const direction = ChangeValueUp)
+    ValueChangerDirected(ValueChangerDirection const direction = ChangeValueUp)
         : direction_(direction)
     {
     }
@@ -58,19 +58,54 @@ public:
         return direction_;
     }
 
+    void reverseDirection()
+    {
+        switch (direction_)
+        {
+        case ChangeValueUp:
+        {
+            direction_ = ChangeValueDown;
+            break;
+        }
+        case ChangeValueDown:
+        {
+            direction_ = ChangeValueUp;
+            break;
+        }
+        }
+    }
+
+    // T change(T const & val);
+
+protected:
+
+    ValueChangerDirection direction_;
+};
+
+template <typename T, typename Range_>
+class ValueChangerLooping : public ValueChangerDirected<T, Range_>
+{
+public:
+    typedef Range_ Range;
+
+    ValueChangerLooping(ValueChangerDirection const direction = ChangeValueUp)
+        : ValueChangerDirected<T, Range_>(direction)
+    {
+    }
+
     T change(T const & val)
     {
         T returnVal = val;
-        if ((Range::max <= val) && (ChangeValueUp == direction_))
+        if ((Range::max <= val) && (ChangeValueUp == this->direction_))
         {
-            direction_ = ChangeValueDown;
+            this->direction_ = ChangeValueDown;
         }
-        else if ((Range::min >= val) && (ChangeValueDown == direction_))
+        else if ((Range::min >= val) && (ChangeValueDown == this->direction_))
         {
-            direction_ = ChangeValueUp;
+            this->direction_ = ChangeValueUp;
         }
 
-        switch (direction_)
+        switch (this->direction_)
         {
         case ChangeValueUp:
         {
@@ -86,9 +121,46 @@ public:
 
         return returnVal;
     }
+};
 
-private:
-    ValueChangerDirection direction_;
+template <typename T, typename Range_>
+class ValueChangerStopping : public ValueChangerDirected<T, Range_>
+{
+public:
+    typedef Range_ Range;
+
+    ValueChangerStopping(ValueChangerDirection const direction = ChangeValueUp)
+        : ValueChangerDirected<T, Range_>(direction)
+    {
+    }
+
+    T change(T const & val)
+    {
+        T returnVal = val; // default to unchanged value
+
+        switch (this->direction_)
+        {
+        case ChangeValueUp:
+        {
+            if (Range::max > val)
+            {
+                returnVal = (val + 1);
+            }
+            break;
+        }
+        case ChangeValueDown:
+        {
+            if (Range::min < val)
+            {
+                returnVal = (val - 1);
+            }
+            break;
+        }
+        }
+
+        return returnVal;
+    }
+
 };
 
 }
