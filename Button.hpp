@@ -25,7 +25,7 @@ struct ButtonState
 }  __attribute__((packed));
 
 
-template <int pinNumber>
+template <int pinNumber, int buttonPressedValue>
 class Button
 {
 public:
@@ -33,7 +33,7 @@ public:
     Button()
     {
         pinMode(pinNumber, INPUT_PULLUP);
-        wasDownPreviously_ = isDown();
+        wasDownPreviously_ = isDown_();
     }
 
     ~Button()
@@ -99,7 +99,7 @@ private:
 
     bool isDown_()
     {
-        return (LOW == digitalRead(pinNumber));
+        return (buttonPressedValue == digitalRead(pinNumber));
     }
 
     static bool pressed_(bool const isDownNow, bool const wasDownPreviously)

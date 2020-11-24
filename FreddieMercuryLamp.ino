@@ -30,8 +30,8 @@ enum LedDisplayMode
 typedef unsigned long Time_t;
 
 static Time_t currentTime = millis();
-ButtonTimed<0> buttonMode(currentTime);
-ButtonTimed<4> buttonPower(currentTime);
+ButtonTimed<0, LOW> buttonMode(currentTime);
+ButtonTimed<4, LOW> buttonPower(currentTime);
 int constexpr pinLedsStrip = 3;
 uint16_t constexpr ledsCount = 10;
 typedef Auxiliaries::Range<uint8_t , /*ledsBrightnessMin*/ 20, /*ledsBrightnessMax*/ 255> RangeBrightness;

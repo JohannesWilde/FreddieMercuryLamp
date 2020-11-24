@@ -46,8 +46,8 @@ struct ButtonTimedState : public ButtonState
 } __attribute__((packed));
 
 
-template <int pinNumber>
-class ButtonTimed : public Button<pinNumber>
+template <int pinNumber, int buttonPressedValue>
+class ButtonTimed : public Button<pinNumber, buttonPressedValue>
 {
 public:
     typedef unsigned long TimeMs_t;
@@ -66,10 +66,10 @@ public:
    */
     bool isDown(TimeMs_t const & currentTimeMs)
     {
-        bool const wasDownPreviouslyBackup = Button<pinNumber>::getWasDownPreviously_();
-        bool const isDownNow = Button<pinNumber>::isDown();
-        // Button<pinNumber>::wasDownPreviously_ now holds the isDownNow value
-        potentiallyUpdateLastTimeToggled_(wasDownPreviouslyBackup, Button<pinNumber>::getWasDownPreviously_(), currentTimeMs);
+        bool const wasDownPreviouslyBackup = Button<pinNumber, buttonPressedValue>::getWasDownPreviously_();
+        bool const isDownNow = Button<pinNumber, buttonPressedValue>::isDown();
+        // Button<pinNumber, buttonPressedValue>::wasDownPreviously_ now holds the isDownNow value
+        potentiallyUpdateLastTimeToggled_(wasDownPreviouslyBackup, Button<pinNumber, buttonPressedValue>::getWasDownPreviously_(), currentTimeMs);
         return isDownNow;
     }
 
@@ -78,10 +78,10 @@ public:
    */
     bool pressed(TimeMs_t const & currentTimeMs)
     {
-        bool const wasDownPreviouslyBackup = Button<pinNumber>::getWasDownPreviously_();
-        bool const isPressed = Button<pinNumber>::pressed();
-        // Button<pinNumber>::wasDownPreviously_ now holds the isDownNow value
-        potentiallyUpdateLastTimeToggled_(wasDownPreviouslyBackup, Button<pinNumber>::getWasDownPreviously_(), currentTimeMs);
+        bool const wasDownPreviouslyBackup = Button<pinNumber, buttonPressedValue>::getWasDownPreviously_();
+        bool const isPressed = Button<pinNumber, buttonPressedValue>::pressed();
+        // Button<pinNumber, buttonPressedValue>::wasDownPreviously_ now holds the isDownNow value
+        potentiallyUpdateLastTimeToggled_(wasDownPreviouslyBackup, Button<pinNumber, buttonPressedValue>::getWasDownPreviously_(), currentTimeMs);
         return isPressed;
     }
 
@@ -90,10 +90,10 @@ public:
    */
     bool released(TimeMs_t const & currentTimeMs)
     {
-        bool const wasDownPreviouslyBackup = Button<pinNumber>::getWasDownPreviously_();
-        bool const wasReleased = Button<pinNumber>::released();
-        // Button<pinNumber>::wasDownPreviously_ now holds the isDownNow value
-        potentiallyUpdateLastTimeToggled_(wasDownPreviouslyBackup, Button<pinNumber>::getWasDownPreviously_(), currentTimeMs);
+        bool const wasDownPreviouslyBackup = Button<pinNumber, buttonPressedValue>::getWasDownPreviously_();
+        bool const wasReleased = Button<pinNumber, buttonPressedValue>::released();
+        // Button<pinNumber, buttonPressedValue>::wasDownPreviously_ now holds the isDownNow value
+        potentiallyUpdateLastTimeToggled_(wasDownPreviouslyBackup, Button<pinNumber, buttonPressedValue>::getWasDownPreviously_(), currentTimeMs);
         return wasReleased;
     }
 
@@ -103,12 +103,12 @@ public:
      */
     ButtonTimedState getState(TimeMs_t const & currentTimeMs)
     {
-        bool const wasDownPreviouslyBackup = Button<pinNumber>::getWasDownPreviously_();
-        ButtonState const buttonState = Button<pinNumber>::getState();
+        bool const wasDownPreviouslyBackup = Button<pinNumber, buttonPressedValue>::getWasDownPreviously_();
+        ButtonState const buttonState = Button<pinNumber, buttonPressedValue>::getState();
         //
         bool const wasLongDurationPreviously = isLongDuration(currentTimeMs, lastTimeToggledMs_);
-        // Button<pinNumber>::wasDownPreviously_ now holds the isDownNow value
-        potentiallyUpdateLastTimeToggled_(wasDownPreviouslyBackup, Button<pinNumber>::getWasDownPreviously_(), currentTimeMs);
+        // Button<pinNumber, buttonPressedValue>::wasDownPreviously_ now holds the isDownNow value
+        potentiallyUpdateLastTimeToggled_(wasDownPreviouslyBackup, Button<pinNumber, buttonPressedValue>::getWasDownPreviously_(), currentTimeMs);
         ButtonTimedState const buttonTimedState(buttonState,
                                                 isLongDuration(currentTimeMs, lastTimeToggledMs_),
                                                 wasLongDurationPreviously && buttonState.pressed,
