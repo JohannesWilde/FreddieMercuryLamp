@@ -19,6 +19,7 @@ enum PowerState
 enum LedDisplayMode
 {
     ModeRedWhite,
+    ModeRainbowRays,
     ModeRed,
     ModeGreen,
     ModeBlue,
@@ -130,6 +131,34 @@ void loop()
             {
                 lightUpFreddie(ledsStrip, /*rays*/ Colors::Red, /*Freddies*/ Colors::White, /*words*/ Colors::White);
                 ledsNeedUpdate = false;
+                break;
+            }
+            case ModeRainbowRays:
+            {
+                static Time_t constexpr modeRainbowRaysUpdateDurationMs = 40;
+                static Time_t lastTimeModeRainbowRaysChangedMs = currentTime - modeRainbowRaysUpdateDurationMs;
+                if ((currentTime - lastTimeModeRainbowRaysChangedMs) >= modeRainbowRaysUpdateDurationMs)
+                {
+                    lastTimeModeRainbowRaysChangedMs = currentTime;
+                    lightUpFreddieHimself(ledsStrip, /*Freddies*/ Colors::White);
+                    lightUpFreddiesWords(ledsStrip, /*words*/ Colors::White);
+
+    //                lightUpFreddiesRays(ledStrip, /*ray0*/ , /*ray1*/ , /*ray2*/ );
+
+                    static uint32_t pixelHue = 0;
+                    uint32_t constexpr hueOffset0 = 10000;
+                    uint32_t constexpr hueOffset1 = 20000;
+                    lightUpFreddiesRays(ledsStrip,
+                                        /*ray0*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue, 255, 255)),
+                                        /*ray1*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + hueOffset0, 255, 255)),
+                                        /*ray2*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + hueOffset1, 255, 255)));
+
+                    pixelHue += 128;
+                    if (pixelHue >= 65536)
+                    {
+                        pixelHue -= 65536;
+                    }
+                }
                 break;
             }
             case ModeFull:
