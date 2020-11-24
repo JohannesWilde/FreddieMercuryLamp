@@ -44,6 +44,7 @@ static PowerState powerState = PowerOn; // default to On
 static LedDisplayMode mode = ModeFull;
 static bool ledsNeedUpdate = true;
 static Adafruit_NeoPixel ledsStrip(ledsCount, pinLedsStrip, NEO_GRBW + NEO_KHZ800);
+static Auxiliaries::ValueChangerStopping<uint8_t, RangeBrightness> brightnessValueChanger;
 
 
 // the setup function runs once when you press reset or power the board
@@ -100,7 +101,6 @@ void loop()
             static Time_t lastTimeBrightnessChangedMs = currentTime - brightnessUpdateDurationMs;
             if ((currentTime - lastTimeBrightnessChangedMs) >= brightnessUpdateDurationMs)
             {
-                static Auxiliaries::ValueChangerTurning<uint8_t, RangeBrightness> brightnessValueChanger;
                 lastTimeBrightnessChangedMs = currentTime;
                 ledsBrightness = brightnessValueChanger.change(ledsBrightness);
                 EEPROM.put<uint8_t>(eepromAddressBrightness, ledsBrightness);
@@ -108,11 +108,18 @@ void loop()
                 ledsNeedUpdate = true;
             }
         }
-        else if (buttonModeState.released && !buttonModeState.longDurationReleased)
+        else if (buttonModeState.released)
         {
-            mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
-            EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
-            ledsNeedUpdate = true;
+            if (buttonModeState.longDurationReleased)
+            {
+                brightnessValueChanger.reverseDirection();
+            }
+            else // short duration released
+            {
+                mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
+                EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
+                ledsNeedUpdate = true;
+            }
         }
 
         if (ledsNeedUpdate)
