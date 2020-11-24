@@ -83,12 +83,12 @@ protected:
 };
 
 template <typename T, typename Range_>
-class ValueChangerLooping : public ValueChangerDirected<T, Range_>
+class ValueChangerTurning : public ValueChangerDirected<T, Range_>
 {
 public:
     typedef Range_ Range;
 
-    ValueChangerLooping(ValueChangerDirection const direction = ChangeValueUp)
+    ValueChangerTurning(ValueChangerDirection const direction = ChangeValueUp)
         : ValueChangerDirected<T, Range_>(direction)
     {
     }
