@@ -100,7 +100,7 @@ void loop()
             static Time_t lastTimeBrightnessChangedMs = currentTime - brightnessUpdateDurationMs;
             if ((currentTime - lastTimeBrightnessChangedMs) >= brightnessUpdateDurationMs)
             {
-                static Auxiliaries::ValueChanger<uint8_t, RangeBrightness> brightnessValueChanger;
+                static Auxiliaries::ValueChangerLooping<uint8_t, RangeBrightness> brightnessValueChanger;
                 lastTimeBrightnessChangedMs = currentTime;
                 ledsBrightness = brightnessValueChanger.change(ledsBrightness);
                 EEPROM.put<uint8_t>(eepromAddressBrightness, ledsBrightness);

@@ -38,12 +38,12 @@ enum ValueChangerDirection
 };
 
 template <typename T, typename Range_>
-class ValueChanger
+class ValueChangerLooping
 {
 public:
     typedef Range_ Range;
 
-    ValueChanger(ValueChangerDirection const direction = ChangeValueUp)
+    ValueChangerLooping(ValueChangerDirection const direction = ChangeValueUp)
         : direction_(direction)
     {
     }
