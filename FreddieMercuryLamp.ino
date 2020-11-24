@@ -34,8 +34,8 @@ ButtonTimed<0, LOW> buttonMode(currentTime);
 ButtonTimed<4, LOW> buttonPower(currentTime);
 int constexpr pinLedsStrip = 3;
 uint16_t constexpr ledsCount = 10;
-typedef Auxiliaries::Range<uint8_t , /*ledsBrightnessMin*/ 20, /*ledsBrightnessMax*/ 255> RangeBrightness;
-uint8_t ledsBrightness = 20; // [0, 255]
+typedef Auxiliaries::Range<uint8_t , /*ledsBrightnessMin*/ 63, /*ledsBrightnessMax*/ 255> RangeBrightness;
+uint8_t ledsBrightness = RangeBrightness::min; // [0, 255]
 
 unsigned constexpr eepromAddressMode = 0;
 unsigned constexpr eepromAddressBrightness = eepromAddressMode + sizeof(LedDisplayMode);
@@ -59,7 +59,7 @@ void setup()
     // initialize leds
     ledsStrip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
     ledsStrip.show();            // Turn OFF all pixels ASAP
-    ledsStrip.setBrightness(ledsBrightness);
+    ledsStrip.setBrightness(Adafruit_NeoPixel::gamma8(ledsBrightness));
 }
 
 
@@ -104,7 +104,7 @@ void loop()
                 lastTimeBrightnessChangedMs = currentTime;
                 ledsBrightness = brightnessValueChanger.change(ledsBrightness);
                 EEPROM.put<uint8_t>(eepromAddressBrightness, ledsBrightness);
-                ledsStrip.setBrightness(ledsBrightness);
+                ledsStrip.setBrightness(Adafruit_NeoPixel::gamma8(ledsBrightness));
                 ledsNeedUpdate = true;
             }
         }
