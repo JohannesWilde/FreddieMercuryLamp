@@ -5,6 +5,7 @@
 #include "ButtonTimed.hpp"
 #include "Colors.hpp"
 #include "Freddie.hpp"
+#include "PowerbankKeepAlive.hpp"
 #include "Range.hpp"
 
 using namespace Colors;
@@ -33,6 +34,7 @@ typedef unsigned long Time_t;
 static Time_t currentTime = millis();
 ButtonTimed<0, LOW> buttonMode(currentTime);
 ButtonTimed<4, LOW> buttonPower(currentTime);
+int constexpr pinPowerbankKeepAlive = 2;
 int constexpr pinLedsStrip = 3;
 uint16_t constexpr ledsCount = 10;
 typedef Auxiliaries::Range<uint8_t , /*ledsBrightnessMin*/ 63, /*ledsBrightnessMax*/ 255> RangeBrightness;
@@ -62,143 +64,146 @@ void setup()
     ledsStrip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
     ledsStrip.show();            // Turn OFF all pixels ASAP
     ledsStrip.setBrightness(Adafruit_NeoPixel::gamma8(ledsBrightness));
-}
 
+    PowerbankKeepAlive<pinPowerbankKeepAlive, HIGH, 5000, 10> powerbankKeepAlive(currentTime);
 
-// the loop function runs over and over again forever
-void loop()
-{
-    currentTime = millis();
-
-    // update buttons
-    ButtonTimedState const buttonPowerState = buttonPower.getState(currentTime);
-    ButtonTimedState const buttonModeState = buttonMode.getState(currentTime);
-
-    // check power button
-    if (buttonPowerState.released)
+    while (true)
     {
-        switch (powerState)
-        {
-        case PowerOff:
-        {
-            powerState = PowerOn;
-            ledsNeedUpdate = true;
-            break;
-        }
-        case PowerOn:
-        {
-            powerState = PowerOff;
-            lightUpFreddie(ledsStrip, Colors::Black);
-            break;
-        }
-        }
-    }
+        currentTime = millis();
 
-    if (PowerOn == powerState)
-    {
-        if (buttonModeState.longDuration && buttonModeState.isDown)
-        {
-            static Time_t constexpr brightnessUpdateDurationMs = 20;
-            static Time_t lastTimeBrightnessChangedMs = currentTime - brightnessUpdateDurationMs;
-            if ((currentTime - lastTimeBrightnessChangedMs) >= brightnessUpdateDurationMs)
-            {
-                lastTimeBrightnessChangedMs = currentTime;
-                ledsBrightness = brightnessValueChanger.change(ledsBrightness);
-                EEPROM.put<uint8_t>(eepromAddressBrightness, ledsBrightness);
-                ledsStrip.setBrightness(Adafruit_NeoPixel::gamma8(ledsBrightness));
-                ledsNeedUpdate = true;
-            }
-        }
-        else if (buttonModeState.released)
-        {
-            if (buttonModeState.longDurationReleased)
-            {
-                brightnessValueChanger.reverseDirection();
-            }
-            else // short duration released
-            {
-                mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
-                EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
-                ledsNeedUpdate = true;
-            }
-        }
+        // update powerbankKeepAlive
+        powerbankKeepAlive.update(currentTime);
 
-        if (ledsNeedUpdate)
+        // update buttons
+        ButtonTimedState const buttonPowerState = buttonPower.getState(currentTime);
+        ButtonTimedState const buttonModeState = buttonMode.getState(currentTime);
+
+        // check power button
+        if (buttonPowerState.released)
         {
-            switch (mode)
+            switch (powerState)
             {
-            case ModeRedWhite:
+            case PowerOff:
             {
-                lightUpFreddie(ledsStrip, /*rays*/ Colors::Red, /*Freddies*/ Colors::White, /*words*/ Colors::White);
-                ledsNeedUpdate = false;
+                powerState = PowerOn;
+                ledsNeedUpdate = true;
                 break;
             }
-            case ModeRainbowRays:
+            case PowerOn:
             {
-                static Time_t constexpr modeRainbowRaysUpdateDurationMs = 40;
-                static Time_t lastTimeModeRainbowRaysChangedMs = currentTime - modeRainbowRaysUpdateDurationMs;
-                if ((currentTime - lastTimeModeRainbowRaysChangedMs) >= modeRainbowRaysUpdateDurationMs)
+                powerState = PowerOff;
+                lightUpFreddie(ledsStrip, Colors::Black);
+                break;
+            }
+            }
+        }
+
+        if (PowerOn == powerState)
+        {
+            if (buttonModeState.longDuration && buttonModeState.isDown)
+            {
+                static Time_t constexpr brightnessUpdateDurationMs = 20;
+                static Time_t lastTimeBrightnessChangedMs = currentTime - brightnessUpdateDurationMs;
+                if ((currentTime - lastTimeBrightnessChangedMs) >= brightnessUpdateDurationMs)
                 {
-                    lastTimeModeRainbowRaysChangedMs = currentTime;
-                    lightUpFreddieHimself(ledsStrip, /*Freddies*/ Colors::White);
-                    lightUpFreddiesWords(ledsStrip, /*words*/ Colors::White);
-
-    //                lightUpFreddiesRays(ledStrip, /*ray0*/ , /*ray1*/ , /*ray2*/ );
-
-                    static uint32_t pixelHue = 0;
-                    uint32_t constexpr hueOffset0 = 10000;
-                    uint32_t constexpr hueOffset1 = 20000;
-                    lightUpFreddiesRays(ledsStrip,
-                                        /*ray0*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue, 255, 255)),
-                                        /*ray1*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + hueOffset0, 255, 255)),
-                                        /*ray2*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + hueOffset1, 255, 255)));
-
-                    pixelHue += 128;
-                    if (pixelHue >= 65536)
-                    {
-                        pixelHue -= 65536;
-                    }
+                    lastTimeBrightnessChangedMs = currentTime;
+                    ledsBrightness = brightnessValueChanger.change(ledsBrightness);
+                    EEPROM.put<uint8_t>(eepromAddressBrightness, ledsBrightness);
+                    ledsStrip.setBrightness(Adafruit_NeoPixel::gamma8(ledsBrightness));
+                    ledsNeedUpdate = true;
                 }
-                break;
             }
-            case ModeFull:
+            else if (buttonModeState.released)
             {
-                ledsStripFillColor(ledsStrip, Colors::Red + Colors::Green + Colors::Blue + Colors::White);
-                ledsNeedUpdate = false;
-                break;
+                if (buttonModeState.longDurationReleased)
+                {
+                    brightnessValueChanger.reverseDirection();
+                }
+                else // short duration released
+                {
+                    mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
+                    EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
+                    ledsNeedUpdate = true;
+                }
             }
-            case ModeRed:
+
+            if (ledsNeedUpdate)
             {
-                ledsStripFillColor(ledsStrip, Colors::Red);
-                ledsNeedUpdate = false;
-                break;
-            }
-            case ModeGreen:
-            {
-                ledsStripFillColor(ledsStrip, Colors::Green);
-                ledsNeedUpdate = false;
-                break;
-            }
-            case ModeBlue:
-            {
-                ledsStripFillColor(ledsStrip, Colors::Blue);
-                ledsNeedUpdate = false;
-                break;
-            }
-            case ModeWhite:
-            {
-                ledsStripFillColor(ledsStrip, Colors::White);
-                ledsNeedUpdate = false;
-                break;
-            }
-            default:
-            {
-                // change to default
-                mode = ModeRedWhite;
-    //            ledsStripShowNumber(ledsStrip, Colors::Red + Colors::Green, mode);
-    //            ledsNeedUpdate = false;
-                break;
-            }
+                switch (mode)
+                {
+                case ModeRedWhite:
+                {
+                    lightUpFreddie(ledsStrip, /*rays*/ Colors::Red, /*Freddies*/ Colors::White, /*words*/ Colors::White);
+                    ledsNeedUpdate = false;
+                    break;
+                }
+                case ModeRainbowRays:
+                {
+                    static Time_t constexpr modeRainbowRaysUpdateDurationMs = 40;
+                    static Time_t lastTimeModeRainbowRaysChangedMs = currentTime - modeRainbowRaysUpdateDurationMs;
+                    if ((currentTime - lastTimeModeRainbowRaysChangedMs) >= modeRainbowRaysUpdateDurationMs)
+                    {
+                        lastTimeModeRainbowRaysChangedMs = currentTime;
+                        lightUpFreddieHimself(ledsStrip, /*Freddies*/ Colors::White);
+                        lightUpFreddiesWords(ledsStrip, /*words*/ Colors::White);
+
+        //                lightUpFreddiesRays(ledStrip, /*ray0*/ , /*ray1*/ , /*ray2*/ );
+
+                        static uint32_t pixelHue = 0;
+                        uint32_t constexpr hueOffset0 = 10000;
+                        uint32_t constexpr hueOffset1 = 20000;
+                        lightUpFreddiesRays(ledsStrip,
+                                            /*ray0*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue, 255, 255)),
+                                            /*ray1*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + hueOffset0, 255, 255)),
+                                            /*ray2*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + hueOffset1, 255, 255)));
+
+                        pixelHue += 128;
+                        if (pixelHue >= 65536)
+                        {
+                            pixelHue -= 65536;
+                        }
+                    }
+                    break;
+                }
+                case ModeFull:
+                {
+                    ledsStripFillColor(ledsStrip, Colors::Red + Colors::Green + Colors::Blue + Colors::White);
+                    ledsNeedUpdate = false;
+                    break;
+                }
+                case ModeRed:
+                {
+                    ledsStripFillColor(ledsStrip, Colors::Red);
+                    ledsNeedUpdate = false;
+                    break;
+                }
+                case ModeGreen:
+                {
+                    ledsStripFillColor(ledsStrip, Colors::Green);
+                    ledsNeedUpdate = false;
+                    break;
+                }
+                case ModeBlue:
+                {
+                    ledsStripFillColor(ledsStrip, Colors::Blue);
+                    ledsNeedUpdate = false;
+                    break;
+                }
+                case ModeWhite:
+                {
+                    ledsStripFillColor(ledsStrip, Colors::White);
+                    ledsNeedUpdate = false;
+                    break;
+                }
+                default:
+                {
+                    // change to default
+                    mode = ModeRedWhite;
+        //            ledsStripShowNumber(ledsStrip, Colors::Red + Colors::Green, mode);
+        //            ledsNeedUpdate = false;
+                    break;
+                }
+                }
             }
         }
     }
