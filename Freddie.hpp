@@ -13,34 +13,45 @@ namespace // anonymous
 
 enum LedPositions
 {
-    LedPositionRay0 = 0,
-    LedPositionRay1 = 1,
-    LedPositionRay2 = 2,
-    LedPositionFreddie0 = 3,
-    LedPositionFreddie1 = 4,
-    LedPositionFreddie2 = 5,
-    LedPositionFreddie3 = 6,
-    LedPositionWords0 = 7,
-    LedPositionWords1 = 8,
-    LedPositionWords2 = 9
+    LedPositionRayLeft0 = 13,
+    LedPositionRayLeft1 = 14,
+    LedPositionRayCenter0 = 10,
+    LedPositionRayCenter1 = 11,
+    LedPositionRayRight0 = 7,
+    LedPositionRayRight1 = 8,
+    LedPositionFreddieLegLeft = 4,
+    LedPositionFreddieLegRight = 3,
+    LedPositionFreddieStomach = 5,
+    LedPositionFreddieArmRight = 6,
+    LedPositionFreddieArmLeft = 12,
+    LedPositionFreddieChest = 9,
+    LedPositionWords0 = 0,
+    LedPositionWords1 = 1,
+    LedPositionWords2 = 2,
+    LedsCount = 15
 };
 
 void updateFreddiesRays_(Adafruit_NeoPixel & strip,
                           Color_t const & ray0, Color_t const & ray1, Color_t const & ray2)
 {
-    strip.setPixelColor(LedPositionRay0, ray0);
-    strip.setPixelColor(LedPositionRay1, ray1);
-    strip.setPixelColor(LedPositionRay2, ray2);
+    strip.setPixelColor(LedPositionRayLeft0, ray0);
+    strip.setPixelColor(LedPositionRayLeft1, ray0);
+    strip.setPixelColor(LedPositionRayCenter0, ray1);
+    strip.setPixelColor(LedPositionRayCenter1, ray1);
+    strip.setPixelColor(LedPositionRayRight0, ray2);
+    strip.setPixelColor(LedPositionRayRight1, ray2);
 }
 
 
 void updateFreddieHimself_(Adafruit_NeoPixel & strip,
                             Color_t const & Freddie0, Color_t const & Freddie1, Color_t const & Freddie2, Color_t const & Freddie3)
 {
-    strip.setPixelColor(LedPositionFreddie0, Freddie0);
-    strip.setPixelColor(LedPositionFreddie1, Freddie1);
-    strip.setPixelColor(LedPositionFreddie2, Freddie2);
-    strip.setPixelColor(LedPositionFreddie3, Freddie3);
+    strip.setPixelColor(LedPositionFreddieLegLeft, Freddie0);
+    strip.setPixelColor(LedPositionFreddieLegRight, Freddie0);
+    strip.setPixelColor(LedPositionFreddieStomach, Freddie1);
+    strip.setPixelColor(LedPositionFreddieChest, Freddie2);
+    strip.setPixelColor(LedPositionFreddieArmRight, Freddie3);
+    strip.setPixelColor(LedPositionFreddieArmLeft, Freddie3);
 }
 
 

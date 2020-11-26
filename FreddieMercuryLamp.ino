@@ -36,7 +36,7 @@ ButtonTimed<0, LOW> buttonMode(currentTime);
 ButtonTimed<4, LOW> buttonPower(currentTime);
 int constexpr pinPowerbankKeepAlive = 2;
 int constexpr pinLedsStrip = 3;
-uint16_t constexpr ledsCount = 10;
+uint16_t constexpr ledsCount = 15;
 typedef Auxiliaries::Range<uint8_t , /*ledsBrightnessMin*/ 63, /*ledsBrightnessMax*/ 255> RangeBrightness;
 uint8_t ledsBrightness = RangeBrightness::min; // [0, 255]
 
