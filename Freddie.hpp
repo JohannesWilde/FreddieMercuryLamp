@@ -58,14 +58,22 @@ enum LedPositions
 #endif // DEVELOPMENT_SETUP
 
 void updateFreddiesRays_(Adafruit_NeoPixel & strip,
-                          Color_t const & ray0, Color_t const & ray1, Color_t const & ray2)
+                         Color_t const & rayLeftLeft, Color_t const & rayLeftRight,
+                         Color_t const & rayCenterLeft, Color_t const & rayCenterRight,
+                         Color_t const & rayRightLeft, Color_t const & rayRightRight)
 {
-    strip.setPixelColor(LedPositionRayLeftRight, ray0);
-    strip.setPixelColor(LedPositionRayLeftLeft, ray0);
-    strip.setPixelColor(LedPositionRayCenterRight, ray1);
-    strip.setPixelColor(LedPositionRayCenterLeft, ray1);
-    strip.setPixelColor(LedPositionRayRightRight, ray2);
-    strip.setPixelColor(LedPositionRayRightLeft, ray2);
+    strip.setPixelColor(LedPositionRayLeftLeft, rayLeftLeft);
+    strip.setPixelColor(LedPositionRayLeftRight, rayLeftRight);
+    strip.setPixelColor(LedPositionRayCenterLeft, rayCenterLeft);
+    strip.setPixelColor(LedPositionRayCenterRight, rayCenterRight);
+    strip.setPixelColor(LedPositionRayRightLeft, rayRightLeft);
+    strip.setPixelColor(LedPositionRayRightRight, rayRightRight);
+}
+
+void updateFreddiesRays_(Adafruit_NeoPixel & strip,
+                          Color_t const & rayLeft, Color_t const & rayCenter, Color_t const & rayRight)
+{
+    updateFreddiesRays_(strip, rayLeft, rayLeft, rayCenter, rayCenter, rayRight, rayRight);
 }
 
 
