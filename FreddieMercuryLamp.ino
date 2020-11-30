@@ -47,6 +47,7 @@ unsigned constexpr eepromAddressBrightness = eepromAddressMode + sizeof(LedDispl
 static PowerState powerState = PowerOn; // default to On
 static LedDisplayMode mode = ModeFull;
 static bool ledsNeedUpdate = true;
+static bool ledsModeFirstSetup = true;
 static Adafruit_NeoPixel ledsStrip(ledsCount, pinLedsStrip, NEO_GRBW + NEO_KHZ800);
 static Auxiliaries::ValueChangerStopping<uint8_t, RangeBrightness> brightnessValueChanger(/*direction*/ Auxiliaries::ValueChangerDirection::ChangeValueDown);
 
@@ -91,6 +92,7 @@ void setup()
             {
                 powerState = PowerOn;
                 ledsNeedUpdate = true;
+                ledsModeFirstSetup = true;
                 break;
             }
             case PowerOn:
@@ -128,6 +130,7 @@ void setup()
                     mode = static_cast<LedDisplayMode>((mode + 1) % _ModesCount);
                     EEPROM.put<LedDisplayMode>(eepromAddressMode, mode);
                     ledsNeedUpdate = true;
+                    ledsModeFirstSetup = true;
                 }
             }
 
@@ -143,13 +146,18 @@ void setup()
                 }
                 case ModeRainbowRays:
                 {
+                    if (ledsModeFirstSetup)
+                    {
+                        lightUpFreddieHimself(ledsStrip, /*Freddies*/ Colors::White);
+                        lightUpFreddiesWords(ledsStrip, /*words*/ Colors::White);
+                        ledsModeFirstSetup = false;
+                    }
+
                     static Time_t constexpr modeRainbowRaysUpdateDurationMs = 40;
                     static Time_t lastTimeModeRainbowRaysChangedMs = currentTime - modeRainbowRaysUpdateDurationMs;
                     if ((currentTime - lastTimeModeRainbowRaysChangedMs) >= modeRainbowRaysUpdateDurationMs)
                     {
                         lastTimeModeRainbowRaysChangedMs = currentTime;
-                        lightUpFreddieHimself(ledsStrip, /*Freddies*/ Colors::White);
-                        lightUpFreddiesWords(ledsStrip, /*words*/ Colors::White);
 
         //                lightUpFreddiesRays(ledStrip, /*ray0*/ , /*ray1*/ , /*ray2*/ );
 
