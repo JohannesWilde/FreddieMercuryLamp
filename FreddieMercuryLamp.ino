@@ -47,7 +47,7 @@ static PowerState powerState = PowerOn; // default to On
 static LedDisplayMode mode = ModeFull;
 static bool ledsNeedUpdate = true;
 static Adafruit_NeoPixel ledsStrip(ledsCount, pinLedsStrip, NEO_GRBW + NEO_KHZ800);
-static Auxiliaries::ValueChangerStopping<uint8_t, RangeBrightness> brightnessValueChanger;
+static Auxiliaries::ValueChangerStopping<uint8_t, RangeBrightness> brightnessValueChanger(/*direction*/ Auxiliaries::ValueChangerDirection::ChangeValueDown);
 
 
 // the setup function runs once when you press reset or power the board
