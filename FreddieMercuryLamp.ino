@@ -154,12 +154,14 @@ void setup()
         //                lightUpFreddiesRays(ledStrip, /*ray0*/ , /*ray1*/ , /*ray2*/ );
 
                         static uint32_t pixelHue = 0;
-                        uint32_t constexpr hueOffset0 = 10000;
-                        uint32_t constexpr hueOffset1 = 20000;
+                        uint32_t constexpr hueOffset = 5000;
                         lightUpFreddiesRays(ledsStrip,
-                                            /*ray0*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue, 255, 255)),
-                                            /*ray1*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + hueOffset0, 255, 255)),
-                                            /*ray2*/ Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + hueOffset1, 255, 255)));
+                                            Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue, 255, 255)),
+                                            Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + hueOffset, 255, 255)),
+                                            Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + 2 * hueOffset, 255, 255)),
+                                            Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + 3 * hueOffset, 255, 255)),
+                                            Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + 4 * hueOffset, 255, 255)),
+                                            Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + 5 * hueOffset, 255, 255)));
 
                         pixelHue += 128;
                         if (pixelHue >= 65536)
