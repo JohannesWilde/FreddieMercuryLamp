@@ -13,12 +13,12 @@ namespace // anonymous
 
 enum LedPositions
 {
-    LedPositionRayLeft0 = 13,
-    LedPositionRayLeft1 = 14,
-    LedPositionRayCenter0 = 10,
-    LedPositionRayCenter1 = 11,
-    LedPositionRayRight0 = 7,
-    LedPositionRayRight1 = 8,
+    LedPositionRayLeftRight = 13,
+    LedPositionRayLeftLeft = 14,
+    LedPositionRayCenterRight = 10,
+    LedPositionRayCenterLeft = 11,
+    LedPositionRayRightRight = 7,
+    LedPositionRayRightLeft = 8,
     LedPositionFreddieLegLeft = 4,
     LedPositionFreddieLegRight = 3,
     LedPositionFreddieStomach = 5,
@@ -34,12 +34,12 @@ enum LedPositions
 void updateFreddiesRays_(Adafruit_NeoPixel & strip,
                           Color_t const & ray0, Color_t const & ray1, Color_t const & ray2)
 {
-    strip.setPixelColor(LedPositionRayLeft0, ray0);
-    strip.setPixelColor(LedPositionRayLeft1, ray0);
-    strip.setPixelColor(LedPositionRayCenter0, ray1);
-    strip.setPixelColor(LedPositionRayCenter1, ray1);
-    strip.setPixelColor(LedPositionRayRight0, ray2);
-    strip.setPixelColor(LedPositionRayRight1, ray2);
+    strip.setPixelColor(LedPositionRayLeftRight, ray0);
+    strip.setPixelColor(LedPositionRayLeftLeft, ray0);
+    strip.setPixelColor(LedPositionRayCenterRight, ray1);
+    strip.setPixelColor(LedPositionRayCenterLeft, ray1);
+    strip.setPixelColor(LedPositionRayRightRight, ray2);
+    strip.setPixelColor(LedPositionRayRightLeft, ray2);
 }
 
 
