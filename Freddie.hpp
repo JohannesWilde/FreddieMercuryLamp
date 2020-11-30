@@ -78,14 +78,23 @@ void updateFreddiesRays_(Adafruit_NeoPixel & strip,
 
 
 void updateFreddieHimself_(Adafruit_NeoPixel & strip,
+                           Color_t const & FreddieLegLeft, Color_t const & FreddieLegRight,
+                           Color_t const & FreddieStomach, Color_t const & FreddieChest,
+                           Color_t const & FreddieArmLeft, Color_t const & FreddieArmRight)
+{
+    strip.setPixelColor(LedPositionFreddieLegLeft, FreddieLegLeft);
+    strip.setPixelColor(LedPositionFreddieLegRight, FreddieLegRight);
+    strip.setPixelColor(LedPositionFreddieStomach, FreddieStomach);
+    strip.setPixelColor(LedPositionFreddieChest, FreddieChest);
+    strip.setPixelColor(LedPositionFreddieArmRight, FreddieArmRight);
+    strip.setPixelColor(LedPositionFreddieArmLeft, FreddieArmLeft);
+}
+
+
+void updateFreddieHimself_(Adafruit_NeoPixel & strip,
                             Color_t const & Freddie0, Color_t const & Freddie1, Color_t const & Freddie2, Color_t const & Freddie3)
 {
-    strip.setPixelColor(LedPositionFreddieLegLeft, Freddie0);
-    strip.setPixelColor(LedPositionFreddieLegRight, Freddie0);
-    strip.setPixelColor(LedPositionFreddieStomach, Freddie1);
-    strip.setPixelColor(LedPositionFreddieChest, Freddie2);
-    strip.setPixelColor(LedPositionFreddieArmRight, Freddie3);
-    strip.setPixelColor(LedPositionFreddieArmLeft, Freddie3);
+    updateFreddieHimself_(strip, Freddie0, Freddie0, Freddie1, Freddie2, Freddie3, Freddie3);
 }
 
 
@@ -102,6 +111,23 @@ void updateFreddiesWords_(Adafruit_NeoPixel & strip,
 
 namespace Freddie
 {
+
+// everything
+
+void lightUpFreddie(Adafruit_NeoPixel & strip,
+                    Color_t const & rayLeftLeft, Color_t const & rayLeftRight,
+                    Color_t const & rayCenterLeft, Color_t const & rayCenterRight,
+                    Color_t const & rayRightLeft, Color_t const & rayRightRight,
+                    Color_t const & FreddieLegLeft, Color_t const & FreddieLegRight,
+                    Color_t const & FreddieStomach, Color_t const & FreddieChest,
+                    Color_t const & FreddieArmLeft, Color_t const & FreddieArmRight,
+                    Color_t const & words0, Color_t const & words1, Color_t const & words2)
+{
+    updateFreddiesRays_(strip, rayLeftLeft, rayLeftRight, rayCenterLeft, rayCenterRight, rayRightLeft, rayRightRight);
+    updateFreddieHimself_(strip, FreddieLegLeft, FreddieLegRight, FreddieStomach, FreddieChest, FreddieArmLeft, FreddieArmRight);
+    updateFreddiesWords_(strip, words0, words1, words2);
+    strip.show();
+}
 
 void lightUpFreddie(Adafruit_NeoPixel & strip,
                      Color_t const & ray0, Color_t const & ray1, Color_t const & ray2,
@@ -128,6 +154,17 @@ void lightUpFreddie(Adafruit_NeoPixel & strip,
     lightUpFreddie(strip, /*rays*/ everything, /*Freddies*/ everything, /*words*/ everything);
 }
 
+// rays only
+
+void lightUpFreddiesRays(Adafruit_NeoPixel & strip,
+                         Color_t const & rayLeftLeft, Color_t const & rayLeftRight,
+                         Color_t const & rayCenterLeft, Color_t const & rayCenterRight,
+                         Color_t const & rayRightLeft, Color_t const & rayRightRight)
+{
+    updateFreddiesRays_(strip, rayLeftLeft, rayLeftRight, rayCenterLeft, rayCenterRight, rayRightLeft, rayRightRight);
+    strip.show();
+}
+
 
 void lightUpFreddiesRays(Adafruit_NeoPixel & strip,
                           Color_t const & ray0, Color_t const & ray1, Color_t const & ray2)
@@ -143,6 +180,16 @@ void lightUpFreddiesRays(Adafruit_NeoPixel & strip,
     lightUpFreddiesRays(strip, rays, rays, rays);
 }
 
+// Freddie himself
+
+void lightUpFreddieHimself(Adafruit_NeoPixel & strip,
+                           Color_t const & FreddieLegLeft, Color_t const & FreddieLegRight,
+                           Color_t const & FreddieStomach, Color_t const & FreddieChest,
+                           Color_t const & FreddieArmLeft, Color_t const & FreddieArmRight)
+{
+    updateFreddieHimself_(strip, FreddieLegLeft, FreddieLegRight, FreddieStomach, FreddieChest, FreddieArmLeft, FreddieArmRight);
+    strip.show();
+}
 
 void lightUpFreddieHimself(Adafruit_NeoPixel & strip,
                             Color_t const & Freddie0, Color_t const & Freddie1, Color_t const & Freddie2, Color_t const & Freddie3)
@@ -158,6 +205,7 @@ void lightUpFreddieHimself(Adafruit_NeoPixel & strip,
     lightUpFreddieHimself(strip, Freddies, Freddies, Freddies, Freddies);
 }
 
+// words
 
 void lightUpFreddiesWords(Adafruit_NeoPixel & strip,
                            Color_t const & word0, Color_t const & word1, Color_t const & word2)
