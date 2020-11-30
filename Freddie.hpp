@@ -11,6 +11,30 @@ using namespace Colors;
 namespace // anonymous
 {
 
+#ifdef DEVELOPMENT_SETUP
+// For development board
+enum LedPositions
+{
+    LedPositionRayLeftRight = 1,
+    LedPositionRayLeftLeft = 0,
+    LedPositionRayCenterRight = 3,
+    LedPositionRayCenterLeft = 2,
+    LedPositionRayRightRight = 5,
+    LedPositionRayRightLeft = 4,
+    LedPositionFreddieLegLeft = 6,
+    LedPositionFreddieLegRight = 7,
+    LedPositionFreddieStomach = 8,
+    LedPositionFreddieArmRight = 11,
+    LedPositionFreddieArmLeft = 9,
+    LedPositionFreddieChest = 10,
+    LedPositionWords0 = 12,
+    LedPositionWords1 = 13,
+    LedPositionWords2 = 14,
+    LedsCount = 15
+};
+
+#else // DEVELOPMENT_SETUP
+
 enum LedPositions
 {
     LedPositionRayLeftRight = 13,
@@ -30,6 +54,8 @@ enum LedPositions
     LedPositionWords2 = 2,
     LedsCount = 15
 };
+
+#endif // DEVELOPMENT_SETUP
 
 void updateFreddiesRays_(Adafruit_NeoPixel & strip,
                           Color_t const & ray0, Color_t const & ray1, Color_t const & ray2)
