@@ -1,5 +1,6 @@
 
 #include <Adafruit_NeoPixel.h>
+#include <avr/wdt.h>
 #include <EEPROM.h>
 
 #include "ButtonTimed.hpp"
@@ -53,6 +54,8 @@ static Auxiliaries::ValueChangerStopping<uint8_t, RangeBrightness> brightnessVal
 // the setup function runs once when you press reset or power the board
 void setup()
 {
+    wdt_enable(WDTO_500MS);
+
     // read back leds stripe mode
     EEPROM.get<LedDisplayMode>(eepromAddressMode, mode);
     mode = static_cast<LedDisplayMode>(mode % _ModesCount);
@@ -69,6 +72,7 @@ void setup()
 
     while (true)
     {
+        wdt_reset();
         currentTime = millis();
 
         // update powerbankKeepAlive
