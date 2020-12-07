@@ -35,6 +35,7 @@ enum LedDisplayMode
 typedef unsigned long Time_t;
 
 static Time_t currentTime = millis();
+static Time_t modeStartTime = currentTime;
 ButtonTimed<0, LOW> buttonMode(currentTime);
 ButtonTimed<2, LOW> buttonPower(currentTime);
 int constexpr pinPowerbankKeepAlive = 4;
@@ -183,14 +184,14 @@ void setup()
                 }
                 case ModeSpotlight:
                 {
-//                    if (ledsModeFirstSetup)
-//                    {
-//                        lightUpFreddieHimself(ledsStrip, /*Freddies*/ Colors::White);
-//                        lightUpFreddiesWords(ledsStrip, /*words*/ Colors::White);
-//                        ledsModeFirstSetup = false;
-//                    }
-                    static unsigned long startTimeSpotLight = currentTime;
-                    double const deltaTimeDouble = static_cast<double>(currentTime - startTimeSpotLight) / 2000.;
+                    if (ledsModeFirstSetup)
+                    {
+                        modeStartTime = currentTime;
+                        lightUpFreddieHimself(ledsStrip, /*Freddies*/ Colors::White);
+                        lightUpFreddiesWords(ledsStrip, /*words*/ Colors::White);
+                        ledsModeFirstSetup = false;
+                    }
+                    double const deltaTimeDouble = static_cast<double>(currentTime - modeStartTime) / 2000.;
 
                     NeoPixelPatterns::updateStripOffset(pixelsTemporaryStorage, 6,  NeoPixelPatterns::brightnessFunctionMountain, Colors::Red, deltaTimeDouble);
                     lightUpFreddiesRays(ledsStrip,
