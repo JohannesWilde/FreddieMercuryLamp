@@ -120,6 +120,7 @@ void setup()
                     EEPROM.put<uint8_t>(eepromAddressBrightness, ledsBrightness);
                     ledsStrip.setBrightness(Adafruit_NeoPixel::gamma8(ledsBrightness));
                     ledsNeedUpdate = true;
+                    ledsModeFirstSetup = true;
                 }
             }
             else if (buttonModeState.released)
@@ -186,21 +187,20 @@ void setup()
                 {
                     if (ledsModeFirstSetup)
                     {
-                        modeStartTime = currentTime;
-                        lightUpFreddieHimself(ledsStrip, /*Freddies*/ Colors::White);
-                        lightUpFreddiesWords(ledsStrip, /*words*/ Colors::White);
+                        lightUpFreddieHimself(ledsStrip, /*Freddies*/ Adafruit_NeoPixel::gamma32(Colors::Gray));
+                        lightUpFreddiesWords(ledsStrip, /*words*/ Adafruit_NeoPixel::gamma32(Colors::Gray));
                         ledsModeFirstSetup = false;
                     }
                     double const deltaTimeDouble = static_cast<double>(currentTime - modeStartTime) / 2000.;
 
                     NeoPixelPatterns::updateStripOffset(pixelsTemporaryStorage, 6,  NeoPixelPatterns::brightnessFunctionMountain, Colors::Red, deltaTimeDouble);
                     lightUpFreddiesRays(ledsStrip,
-                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[0]),
-                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[1]),
-                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[2]),
-                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[3]),
-                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[4]),
-                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[5]));
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[0] | Colors::Gray),
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[1] | Colors::Gray),
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[2] | Colors::Gray),
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[3] | Colors::Gray),
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[4] | Colors::Gray),
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[5] | Colors::Gray));
 
 
                     break;
