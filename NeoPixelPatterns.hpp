@@ -77,15 +77,20 @@ T symmetrizePosition(T const & position, T const & range)
 template<typename T>
 T circlePosition(T const & position, T const & range)
 {
-    T const normalizedPosition = normalizePosition(position, range);
-    return (normalizedPosition <= range) ? normalizedPosition : ((2 * range) - normalizedPosition);
+    T const inputRange = 2 * range;
+    T const normalizedPosition = normalizePosition(position, inputRange);
+    return (normalizedPosition <= range) ? normalizedPosition : (inputRange - normalizedPosition);
 }
 
 
-void updateStrip(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
+void updateStripWrapping(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
                  BrightnessFunctionType brightnessFunction,
-//                 PositionNormalizationFunctionType positionNormalizationFunction,
                  uint32_t const &color, double const & currentTime);
+
+
+void updateStripOffset(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
+                       BrightnessFunctionType brightnessFunction,
+                       uint32_t const &color, double const & currentTime);
 
 } // NeoPixelPatterns
 

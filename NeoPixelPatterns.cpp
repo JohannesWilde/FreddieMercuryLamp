@@ -29,16 +29,15 @@ unsigned long normalizePosition(const unsigned long & position, const unsigned l
     return (position % range);
 }
 
-void updateStrip(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
-                 BrightnessFunctionType brightnessFunction,
-//                 PositionNormalizationFunctionType positionNormalizationFunction,
-                 uint32_t const &color, double const & currentTime)
+void updateStripWrapping(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
+                         BrightnessFunctionType brightnessFunction,
+                         uint32_t const &color, double const & currentTime)
 {
     double const numberOfPixelsDouble = static_cast<double>(numberOfPixels);
-    double previousBrightness = brightnessFunction(circlePosition(0 - currentTime, numberOfPixelsDouble) - .5);
+    double previousBrightness = brightnessFunction(symmetrizePosition(0 - currentTime, numberOfPixelsDouble) - .5);
     for (unsigned i=0; i < numberOfPixels; ++i, ++pixelsPointer)
     {
-        double const normalizedPosition = circlePosition(i - currentTime, numberOfPixelsDouble);
+        double const normalizedPosition = symmetrizePosition(i - currentTime, numberOfPixelsDouble);
         double const nextBrightness = brightnessFunction(normalizedPosition+.5);
         // Where the brightness wraps around, previousBrightness has to be recalculated.
         if (nextBrightness < previousBrightness)
@@ -46,6 +45,29 @@ void updateStrip(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
             previousBrightness = brightnessFunction(normalizedPosition-.5);
         }
 
+        // As written above: brightness = F(i+.5) - F(i-.5)
+        double const brightness = nextBrightness - previousBrightness;
+
+        *pixelsPointer = Adafruit_NeoPixel::Color(
+                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 16)) * brightness),
+                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 8)) * brightness),
+                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 0)) * brightness),
+                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 24)) * brightness));
+
+        previousBrightness = nextBrightness;
+    }
+}
+
+void updateStripOffset(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
+                       BrightnessFunctionType brightnessFunction,
+                       uint32_t const &color, double const & currentTime)
+{
+    double const offsetPosition = circlePosition(currentTime, static_cast<double>(numberOfPixels));
+    double previousBrightness = brightnessFunction(0 - offsetPosition - .5);
+    for (unsigned i=0; i < numberOfPixels; ++i, ++pixelsPointer)
+    {
+        double const normalizedPosition = (i - offsetPosition);
+        double const nextBrightness = brightnessFunction(normalizedPosition+.5);
         // As written above: brightness = F(i+.5) - F(i-.5)
         double const brightness = nextBrightness - previousBrightness;
 

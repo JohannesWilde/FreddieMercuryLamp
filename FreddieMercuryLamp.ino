@@ -190,9 +190,9 @@ void setup()
 //                        ledsModeFirstSetup = false;
 //                    }
                     static unsigned long startTimeSpotLight = currentTime;
-                    double const deltaTimeDouble = static_cast<double>(currentTime - startTimeSpotLight) / 500.;
+                    double const deltaTimeDouble = static_cast<double>(currentTime - startTimeSpotLight) / 2000.;
 
-                    NeoPixelPatterns::updateStrip(pixelsTemporaryStorage, 6,  NeoPixelPatterns::brightnessFunctionMountain, Colors::Red, deltaTimeDouble);
+                    NeoPixelPatterns::updateStripOffset(pixelsTemporaryStorage, 6,  NeoPixelPatterns::brightnessFunctionMountain, Colors::Red, deltaTimeDouble);
                     lightUpFreddiesRays(ledsStrip,
                                         Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[0]),
                                         Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[1]),
