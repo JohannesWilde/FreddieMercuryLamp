@@ -62,7 +62,8 @@ void updateStripOffset(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
                        BrightnessFunctionType brightnessFunction,
                        uint32_t const &color, double const & currentTime)
 {
-    double const offsetPosition = circlePosition(currentTime, static_cast<double>(numberOfPixels));
+    // subtract 1 here, as the position should be in (0, N-1) for N pixels
+    double const offsetPosition = circlePosition(currentTime, static_cast<double>(numberOfPixels - 1));
     double previousBrightness = brightnessFunction(0 - offsetPosition - .5);
     for (unsigned i=0; i < numberOfPixels; ++i, ++pixelsPointer)
     {
