@@ -20,6 +20,9 @@ Color_t constexpr Green = Color(0, 255, 0, 0);
 Color_t constexpr Blue = Color(0, 0, 255, 0);
 Color_t constexpr Yellow = Color(255, 246, 0, 0);
 Color_t constexpr White = Color(0, 0, 0, 255);
+
+Color_t colorScaleBrightness(Color_t const & input, double const & scaleFactor);
+
 }
 
 #endif // COLORS_HPP

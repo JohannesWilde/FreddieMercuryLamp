@@ -4,6 +4,8 @@
 #include <math.h>
 #include <Adafruit_NeoPixel.h>
 
+#include "Colors.hpp"
+
 
 namespace NeoPixelPatterns
 {
@@ -85,12 +87,12 @@ T circlePosition(T const & position, T const & range)
 
 void updateStripWrapping(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
                  BrightnessFunctionType brightnessFunction,
-                 uint32_t const &color, double const & currentTime);
+                 Colors::Color_t const &color, double const & currentTime);
 
 
 void updateStripOffset(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
                        BrightnessFunctionType brightnessFunction,
-                       uint32_t const &color, double const & currentTime);
+                       Colors::Color_t const &color, double const & currentTime);
 
 } // NeoPixelPatterns
 

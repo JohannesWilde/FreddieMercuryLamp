@@ -5,9 +5,9 @@ namespace NeoPixelPatterns
 
 double brightnessFunctionMountain(const double x)
 {
-    double const halfWidthHalfMaximum = 2.;
-    double const halfWidthHalfMaximumSqrt = sqrt(halfWidthHalfMaximum);
-    double const normalization = 2. * atan(1./(2 * halfWidthHalfMaximumSqrt));
+    double constexpr halfWidthHalfMaximum = 2.;
+    double constexpr halfWidthHalfMaximumSqrt = sqrt(halfWidthHalfMaximum);
+    double constexpr normalization = 2. * atan(1./(2 * halfWidthHalfMaximumSqrt));
     return atan(x/halfWidthHalfMaximumSqrt) / normalization;
 }
 
@@ -31,7 +31,7 @@ unsigned long normalizePosition(const unsigned long & position, const unsigned l
 
 void updateStripWrapping(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
                          BrightnessFunctionType brightnessFunction,
-                         uint32_t const &color, double const & currentTime)
+                         Colors::Color_t const &color, double const & currentTime)
 {
     double const numberOfPixelsDouble = static_cast<double>(numberOfPixels);
     double previousBrightness = brightnessFunction(symmetrizePosition(0 - currentTime, numberOfPixelsDouble) - .5);
@@ -48,11 +48,7 @@ void updateStripWrapping(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
         // As written above: brightness = F(i+.5) - F(i-.5)
         double const brightness = nextBrightness - previousBrightness;
 
-        *pixelsPointer = Adafruit_NeoPixel::Color(
-                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 16)) * brightness),
-                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 8)) * brightness),
-                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 0)) * brightness),
-                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 24)) * brightness));
+        *pixelsPointer = Colors::colorScaleBrightness(color, brightness);
 
         previousBrightness = nextBrightness;
     }
@@ -60,7 +56,7 @@ void updateStripWrapping(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
 
 void updateStripOffset(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
                        BrightnessFunctionType brightnessFunction,
-                       uint32_t const &color, double const & currentTime)
+                       Colors::Color_t const &color, double const & currentTime)
 {
     // subtract 1 here, as the position should be in (0, N-1) for N pixels
     double const offsetPosition = circlePosition(currentTime, static_cast<double>(numberOfPixels - 1));
@@ -72,11 +68,7 @@ void updateStripOffset(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
         // As written above: brightness = F(i+.5) - F(i-.5)
         double const brightness = nextBrightness - previousBrightness;
 
-        *pixelsPointer = Adafruit_NeoPixel::Color(
-                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 16)) * brightness),
-                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 8)) * brightness),
-                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 0)) * brightness),
-                    static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 24)) * brightness));
+        *pixelsPointer = Colors::colorScaleBrightness(color, brightness);
 
         previousBrightness = nextBrightness;
     }
