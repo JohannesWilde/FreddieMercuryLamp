@@ -11,11 +11,22 @@ double brightnessFunctionMountain(const double x)
     return atan(x/halfWidthHalfMaximumSqrt) / normalization;
 }
 
-double normalizePosition(const double position, const double range)
+template<>
+double normalizePosition(const double & position, const double & range)
 {
-    return fmod(fmod(position, range) + range, range) - (range / 2.);
+    return fmod(fmod(position, range) + range, range);
 }
 
+template<>
+unsigned normalizePosition(const unsigned & position, const unsigned & range)
+{
+    return (position % range);
+}
 
+template<>
+unsigned long normalizePosition(const unsigned long & position, const unsigned long & range)
+{
+    return (position % range);
+}
 
 } // NeoPixelPatterns

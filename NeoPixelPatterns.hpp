@@ -30,17 +30,43 @@ typedef double(*BrightnessFunctionType)(double);
  */
 double brightnessFunctionMountain(double const x);
 
-// move position to [-range/2, range/2)
-double normalizePosition(double const position, double const range);
+// move position to [0, range)
+template<typename T>
+T normalizePosition(T const & position, T const & range)
+{
+    return (((position % range) + range) % range);
+}
+
+template<>
+double normalizePosition(const double & position, const double & range);
+
+template<>
+unsigned normalizePosition(const unsigned & position, const unsigned & range);
+
+template<>
+unsigned long normalizePosition(const unsigned long & position, const unsigned long & range);
+
+
+// symmetrize position to [-range/2, range/2)
+// Please note that this requires a static-cast to signed for unsigned types
+// of T.
+template<typename T>
+T symmetrizePosition(T const & position, T const & range)
+{
+    return normalizePosition(position, range) - range/2;
+}
+
+//// limit to
+//double normalizePosition(double const position, double const range);
 
 template<size_t numberOfPixels, BrightnessFunctionType brightnessFunction>
-void updateStrip(Adafruit_NeoPixel & strip, uint32_t const &color, double const currentTime)
+void updateStrip(Adafruit_NeoPixel & strip, uint32_t const &color, double const & currentTime)
 {
     double const numberOfPixelsDouble = static_cast<double>(numberOfPixels);
-    double previousBrightness = brightnessFunction(normalizePosition(0. - currentTime, numberOfPixelsDouble)-.5);
+    double previousBrightness = brightnessFunction(symmetrizePosition(0. - currentTime, numberOfPixelsDouble)-.5);
     for(unsigned i=0; i < numberOfPixels; ++i)
     {
-        double const normalizedPosition = normalizePosition(static_cast<double>(i) - currentTime, numberOfPixelsDouble);
+        double const normalizedPosition = symmetrizePosition(static_cast<double>(i) - currentTime, numberOfPixelsDouble);
         double const nextBrightness = brightnessFunction(normalizedPosition+.5);
         // Where the brightness wraps around, previousBrightness has to be recalculated.
         if (nextBrightness < previousBrightness)
