@@ -4,6 +4,8 @@
 #include <math.h>
 #include <Adafruit_NeoPixel.h>
 
+#include "Colors.hpp"
+
 
 namespace NeoPixelPatterns
 {
@@ -30,52 +32,67 @@ typedef double(*BrightnessFunctionType)(double);
  */
 double brightnessFunctionMountain(double const x);
 
-// move position to [-range/2, range/2)
-double normalizePosition(double const position, double const range);
 
-template<size_t numberOfPixels, BrightnessFunctionType brightnessFunction>
-void updateStrip(Adafruit_NeoPixel & strip, uint32_t const &color, double const currentTime)
+/**
+ * Normalize a double position with regard to a range.
+ * first parameter: position
+ * second parameter: range
+ */
+typedef double(*PositionNormalizationFunctionType)(double, double);
+
+// move position to [0, range)
+template<typename T>
+T normalizePosition(T const & position, T const & range)
 {
-    double const numberOfPixelsDouble = static_cast<double>(numberOfPixels);
-    double previousBrightness = brightnessFunction(normalizePosition(0. - currentTime, numberOfPixelsDouble)-.5);
-    for(unsigned i=0; i < numberOfPixels; ++i)
-    {
-        double const normalizedPosition = normalizePosition(static_cast<double>(i) - currentTime, numberOfPixelsDouble);
-        double const nextBrightness = brightnessFunction(normalizedPosition+.5);
-        // Where the brightness wraps around, previousBrightness has to be recalculated.
-        if (nextBrightness < previousBrightness)
-        {
-            previousBrightness = brightnessFunction(normalizedPosition-.5);
-        }
-
-        // As written above: brightness = F(i+.5) - F(i-.5)
-        double const brightness = nextBrightness - previousBrightness;
-
-        uint32_t const colorNew = Adafruit_NeoPixel::Color(
-                    Adafruit_NeoPixel::gamma8(static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 16)) * brightness)),
-                    Adafruit_NeoPixel::gamma8(static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 8)) * brightness)),
-                    Adafruit_NeoPixel::gamma8(static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 0)) * brightness)),
-                    Adafruit_NeoPixel::gamma8(static_cast<uint8_t>(static_cast<double>(static_cast<uint8_t>(color >> 24)) * brightness)));
-        strip.setPixelColor(i, colorNew);
-
-        previousBrightness = nextBrightness;
-    }
-    strip.show();
+    return (((position % range) + range) % range);
 }
 
-template<size_t numberOfPixels, BrightnessFunctionType brightnessFunction>
-void updateStripLoop(Adafruit_NeoPixel & strip, uint32_t const &color, unsigned long const totalTimeMs)
+template<>
+double normalizePosition(const double & position, const double & range);
+
+template<>
+unsigned normalizePosition(const unsigned & position, const unsigned & range);
+
+template<>
+unsigned long normalizePosition(const unsigned long & position, const unsigned long & range);
+
+
+// symmetrize position to [-range/2, range/2)
+// Please note that this requires a static-cast to signed for unsigned types
+// of T.
+template<typename T>
+T symmetrizePosition(T const & position, T const & range)
 {
-    unsigned long const startTime = millis();
-    unsigned long deltaTime = 0;
-    while (deltaTime < totalTimeMs)
-    {
-        unsigned long const curTime = millis();
-        deltaTime = (curTime - startTime);
-        double const deltaTimeDouble = static_cast<double>(deltaTime) / 500.;
-        updateStrip<numberOfPixels, brightnessFunction>(strip, color, deltaTimeDouble);
-    }
+    return normalizePosition(position, range) - range/2;
 }
+
+/* circle back and forth from [0, range) -> [0, range/2]
+ *     ^                *
+ *   T |    /\          *
+ *     |   /  \         *
+ *     |  /    \        *
+ *     | /      \       *
+ *     |/        \      *
+ *   0 ------------>    *
+ *     0        2T      *
+ */
+template<typename T>
+T circlePosition(T const & position, T const & range)
+{
+    T const inputRange = 2 * range;
+    T const normalizedPosition = normalizePosition(position, inputRange);
+    return (normalizedPosition <= range) ? normalizedPosition : (inputRange - normalizedPosition);
+}
+
+
+void updateStripWrapping(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
+                 BrightnessFunctionType brightnessFunction,
+                 Colors::Color_t const &color, double const & currentTime);
+
+
+void updateStripOffset(uint32_t * pixelsPointer, uint8_t const numberOfPixels,
+                       BrightnessFunctionType brightnessFunction,
+                       Colors::Color_t const &color, double const & currentTime);
 
 } // NeoPixelPatterns
 
