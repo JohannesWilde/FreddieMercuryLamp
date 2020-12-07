@@ -23,6 +23,7 @@ enum LedDisplayMode
 {
     ModeRedWhite,
     ModeRainbowRays,
+    ModeRainbow,
     ModeSpotlight,
     ModeRed,
     ModeGreen,
@@ -163,8 +164,6 @@ void setup()
                     {
                         lastTimeModeRainbowRaysChangedMs = currentTime;
 
-        //                lightUpFreddiesRays(ledStrip, /*ray0*/ , /*ray1*/ , /*ray2*/ );
-
                         static uint32_t pixelHue = 0;
                         uint32_t constexpr hueOffset = 5000;
                         lightUpFreddiesRays(ledsStrip,
@@ -174,6 +173,26 @@ void setup()
                                             Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + 3 * hueOffset, 255, 255)),
                                             Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + 4 * hueOffset, 255, 255)),
                                             Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue + 5 * hueOffset, 255, 255)));
+
+                        pixelHue += 128;
+                        if (pixelHue >= 65536)
+                        {
+                            pixelHue -= 65536;
+                        }
+                    }
+                    break;
+                }
+                case ModeRainbow:
+                {
+                    static Time_t constexpr modeRainbowUpdateDurationMs = 100;
+                    static Time_t lastTimeModeRainbowChangedMs = currentTime - modeRainbowUpdateDurationMs;
+                    if ((currentTime - lastTimeModeRainbowChangedMs) >= modeRainbowUpdateDurationMs)
+                    {
+                        lastTimeModeRainbowChangedMs = currentTime;
+
+                        static uint32_t pixelHue = 0;
+                        lightUpFreddie(ledsStrip,
+                                       Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(pixelHue, 255, 255)));
 
                         pixelHue += 128;
                         if (pixelHue >= 65536)
