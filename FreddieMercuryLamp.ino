@@ -6,6 +6,7 @@
 #include "ButtonTimed.hpp"
 #include "Colors.hpp"
 #include "Freddie.hpp"
+#include "NeoPixelPatterns.hpp"
 #include "PowerbankKeepAlive.hpp"
 #include "Range.hpp"
 
@@ -22,6 +23,7 @@ enum LedDisplayMode
 {
     ModeRedWhite,
     ModeRainbowRays,
+    ModeSpotlight,
     ModeRed,
     ModeGreen,
     ModeBlue,
@@ -50,7 +52,7 @@ static bool ledsNeedUpdate = true;
 static bool ledsModeFirstSetup = true;
 static Adafruit_NeoPixel ledsStrip(ledsCount, pinLedsStrip, NEO_GRBW + NEO_KHZ800);
 static Auxiliaries::ValueChangerStopping<uint8_t, RangeBrightness> brightnessValueChanger(/*direction*/ Auxiliaries::ValueChangerDirection::ChangeValueDown);
-
+static uint32_t pixelsTemporaryStorage[6];
 
 // the setup function runs once when you press reset or power the board
 void setup()
@@ -177,6 +179,29 @@ void setup()
                             pixelHue -= 65536;
                         }
                     }
+                    break;
+                }
+                case ModeSpotlight:
+                {
+//                    if (ledsModeFirstSetup)
+//                    {
+//                        lightUpFreddieHimself(ledsStrip, /*Freddies*/ Colors::White);
+//                        lightUpFreddiesWords(ledsStrip, /*words*/ Colors::White);
+//                        ledsModeFirstSetup = false;
+//                    }
+                    static unsigned long startTimeSpotLight = currentTime;
+                    double const deltaTimeDouble = static_cast<double>(currentTime - startTimeSpotLight) / 500.;
+
+                    NeoPixelPatterns::updateStrip(pixelsTemporaryStorage, 6,  NeoPixelPatterns::brightnessFunctionMountain, Colors::Red, deltaTimeDouble);
+                    lightUpFreddiesRays(ledsStrip,
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[0]),
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[1]),
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[2]),
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[3]),
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[4]),
+                                        Adafruit_NeoPixel::gamma32(pixelsTemporaryStorage[5]));
+
+
                     break;
                 }
                 case ModeFull:
