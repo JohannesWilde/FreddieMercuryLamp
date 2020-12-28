@@ -20,11 +20,6 @@ Fuse Low Byte: 0b11000010 = 0xc2
 	- internal 8MHz
 
 
-avrdude.exe -P COM5 -b 19200 -c avrisp -p ATtiny85 -U efuse:r:-:b
-avrdude.exe -P COM5 -b 19200 -c avrisp -p ATtiny85 -U hfuse:r:-:b
-avrdude.exe -P COM5 -b 19200 -c avrisp -p ATtiny85 -U lfuse:r:-:b
+avrdude.exe -P COM5 -b 19200 -c avrisp -p ATtiny85 -U lfuse:r:-:b -U hfuse:r:-:b -U efuse:r:-:b
 
-avrdude.exe -P COM5 -b 19200 -c avrisp -p ATtiny85 -U efuse:w:0xff:m
-avrdude.exe -P COM5 -b 19200 -c avrisp -p ATtiny85 -U hfuse:w:0xd5:m
-avrdude.exe -P COM5 -b 19200 -c avrisp -p ATtiny85 -U lfuse:w:0xc2:m
-
+avrdude.exe -P COM5 -b 19200 -c avrisp -p ATtiny85 -U lfuse:w:0xc2:m -U hfuse:w:0xd5:m -U efuse:w:0xff:m
